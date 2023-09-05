@@ -6,15 +6,15 @@ import (
 	"html/template"
 	"strings"
 
-	"github.com/tal-tech/go-zero/tools/goctl/model/sql/util"
+	"github.com/miaogaolin/ddlparser/parser"
+	"github.com/zeromicro/go-zero/tools/goctl/model/sql/util"
 
 	"github.com/iancoleman/strcase"
-	"github.com/tal-tech/go-zero/core/collection"
+	"github.com/zeromicro/go-zero/core/collection"
 
-	"github.com/miaogaolin/sql2ent/converter"
+	"github.com/zxzixuanwang/sql2ent/converter"
 
-	"github.com/miaogaolin/ddlparser/parser"
-	"github.com/tal-tech/go-zero/tools/goctl/util/stringx"
+	"github.com/zeromicro/go-zero/tools/goctl/util/stringx"
 )
 
 type (

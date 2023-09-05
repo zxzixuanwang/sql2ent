@@ -1,12 +1,13 @@
 package gen
 
 import (
-	"io/ioutil"
+	"fmt"
+	"os"
 	"strings"
 
-	"github.com/miaogaolin/sql2ent/util"
+	"github.com/zxzixuanwang/sql2ent/util"
 
-	"github.com/miaogaolin/sql2ent/parser"
+	"github.com/zxzixuanwang/sql2ent/parser"
 
 	ddlParser "github.com/miaogaolin/ddlparser/parser"
 )
@@ -21,8 +22,35 @@ func NewMysqlGenerator(dir string) *MysqlGenerator {
 	}
 }
 
+func (g *MysqlGenerator) FromMysql(content string) error {
+	p := ddlParser.NewParser()
+	tables, err := p.From([]byte(content))
+	if err != nil {
+		return err
+	}
+	tablesContent := make(map[string]string)
+	fmt.Println("table", tables)
+	for _, v := range tables {
+		fmt.Println("name", v.Name, "columns", v.Columns, "constraints", v.Constraints)
+	}
+
+	for _, t := range tables {
+		sch, err := parser.ParseSchema(t)
+		if err != nil {
+			return err
+		}
+
+		schContent, err := parser.ParseTpl(sch)
+		if err != nil {
+			return err
+		}
+		tablesContent[sch.TableName] = schContent
+	}
+	return g.createFile(tablesContent)
+}
+
 func (g *MysqlGenerator) FromFile(fileName string) error {
-	bytes, err := ioutil.ReadFile(fileName)
+	bytes, err := os.ReadFile(fileName)
 	if err != nil {
 		return err
 	}

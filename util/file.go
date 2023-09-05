@@ -1,13 +1,8 @@
 package util
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
-
-	"github.com/sirupsen/logrus"
-
-	"github.com/tal-tech/go-zero/tools/goctl/util"
 )
 
 func CreateFiles(modelList map[string]string, dir string) error {
@@ -15,22 +10,37 @@ func CreateFiles(modelList map[string]string, dir string) error {
 	if err != nil {
 		return err
 	}
-
-	err = util.MkdirIfNotExist(dirAbs)
-	if err != nil {
-		return err
-	}
-
-	for fileName, code := range modelList {
-		filename := filepath.Join(dirAbs, fileName)
-		if util.FileExists(filename) {
-			logrus.Warnf("%s already exists, ignored.", fileName)
-			continue
-		}
-		err = ioutil.WriteFile(filename, []byte(code), os.ModePerm)
+	getDir := filepath.Dir(dir)
+	if dir != getDir {
+		err := os.MkdirAll(dir, 0666)
 		if err != nil {
 			return err
 		}
 	}
+	closeF := make([]*os.File, 0, len(modelList))
+	defer func() {
+		for _, v := range closeF {
+			v.Close()
+		}
+	}()
+
+	for fileName, code := range modelList {
+		filename := filepath.Join(dirAbs, fileName)
+		f, err := os.Open(filename)
+		if err != nil {
+			if os.IsNotExist(err) {
+				closeF = append(closeF, f)
+
+				err = os.WriteFile(filename, []byte(code), os.ModePerm)
+				if err != nil {
+					return err
+				}
+			}
+
+			continue
+		}
+
+	}
+
 	return nil
 }

@@ -21,13 +21,18 @@ var (
 					Usage: `generate mysql ent schema from ddl`,
 					Flags: []cli.Flag{
 						cli.StringFlag{
-							Name:  "src, s",
-							Usage: "the path or path globbing patterns of the ddl",
+							Name:     "src, s",
+							Required: false,
+							Usage:    "the path or path globbing patterns of the ddl",
 						},
 						cli.StringFlag{
 							Name:  "dir, d",
 							Value: "./ent/schema",
 							Usage: "the target dir",
+						},
+						cli.StringFlag{
+							Name:  "mysql_target,target",
+							Usage: "mysql connection target",
 						},
 					},
 					Action: MysqlDDL,
